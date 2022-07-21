@@ -1,6 +1,9 @@
-from tensorflow.keras.layers import *
-from tensorflow.keras.models import Sequential
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jul 17 16:48:06 2022
 
+@author: Muhammad Kaleemullah
+"""
 from vhbdetector.data_loader import DataLoader
 from vhbdetector.pre_processing import Preprocessing
 from vhbdetector.models.base_model import BaseModel
@@ -14,15 +17,14 @@ from tensorflow.keras.callbacks import *
 from tensorflow.keras.optimizers import Adam
 
 
-class BASIC_CONVLSTM( BaseModel):
-    """As it name suggests it's the basic structure consists of 4 convlsts2d layers that captures spatio-temporal features better than the other models.
-    It returns the customized model with basic limited flexibility (user control), but it works good.
-    """
-    def __init__(self, convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.1):
+class CONVLSTM(BaseModel):
+    def __init__(self, convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1):
         # Layer parameters
         self.conv_actvn = convolutions_activation
         self.recurr_actvn = recurrent_activation
         self.td_drop_rate = time_distributed_drop_rate
+        self.conv_drop_rate = convolutions_drop_rate
+        self.recurr_drop_rate = recurrent_drop_rate
         
         #Validate Layer Parameters
         self.validate_params()
@@ -58,7 +60,7 @@ class BASIC_CONVLSTM( BaseModel):
         self.model = True
         if self.conv_actvn not in activations or self.recurr_actvn not in activations:
             raise Exception(f"Failed to load the model! The input activation function(s)  are invalid. Only the following activation functions are allowed to use in this model: {activations}.")
-        elif self.td_drop_rate < 0 or self.td_drop_rate > 1:
+        elif self.td_drop_rate < 0 or self.td_drop_rate > 1 or self.conv_drop_rate < 0 or self.conv_drop_rate > 1 or self.recurr_drop_rate < 0 or self.recurr_drop_rate > 1:
             raise Exception("Dropout (1 - keep_probability) must be between 0 and 1!")
         return 0
         
@@ -84,8 +86,8 @@ class BASIC_CONVLSTM( BaseModel):
         convolutions_activation = self.conv_actvn
         recurrent_activation = self.recurr_actvn
         time_distributed_drop_rate = self.td_drop_rate
-        convolutions_drop_rate = 0
-        recurrent_drop_rate = 0
+        convolutions_drop_rate = self.conv_drop_rate
+        recurrent_drop_rate = self.recurr_drop_rate
         
         
         seq_len = X_train.shape[1]
@@ -160,12 +162,7 @@ class BASIC_CONVLSTM( BaseModel):
                          recurrent_dropout= recurrent_drop_rate, return_sequences=True))
             model.add(MaxPooling3D(pool_size=(1, 2, 2), padding='same', data_format='channels_last'))
             model.add(TimeDistributed(Dropout(time_distributed_drop_rate)))
-        
         model.add(Flatten()) 
-        
-        model.add(Dense(1024, activation = "relu"))
-
-        model.add(Dense(512, activation = "relu"))
             
         
         model.add(Dense(num_classes, activation = "softmax"))
@@ -184,6 +181,8 @@ class BASIC_CONVLSTM( BaseModel):
         """
         Optimizers : Adam, by default, because Adam works best and outperforms other gradient descent algorithms.
         """
+        
+        
         
         save_chkpt, chkpt_path_valid = self.validate_hyperparams(learning_rate,  batch_size, epochs, early_stopping_epoch, lr_decay_rate, min_lr_weight_decay, checkpoints_save_path)
         
@@ -305,7 +304,7 @@ if __name__ == "__main__":
     #dl = DataLoader()
     #data, labels = dl.load_data("datasets/X_normalized_temp.pickle", "datasets/Y_temp.pickle")
     
-    model = BASIC_CONVLSTM(time_distributed_drop_rate=0.3)
+    model = CONVLSTM(convolutions_drop_rate=0.2, recurrent_drop_rate=0.2, time_distributed_drop_rate=0.3)
     
     
     dl = DataLoader()
@@ -314,8 +313,31 @@ if __name__ == "__main__":
     data, labels = dl.load_data(data_file, labels_file)
     
     video_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\sample_video.mp4"
-      
+    
+    from vhbdetector.pre_processing import Preprocessing
+    pp = Preprocessing()
+    print(data.shape)
+    data = pp.change_data_dimensions(data, 60, 30, 30)    
     from sklearn.model_selection import train_test_split
     X_train, X_test, Y_train, Y_test = train_test_split(data, labels, test_size = 0.3, stratify = labels, shuffle = True)
     
     copy = model.create_model(X_train, Y_train, X_test, Y_test)
+    
+    
+    model.set_hyperparams(0.0001, 16, 1, 0, 0, 0, True)
+    history, trained_model = model.train_model()
+    accuracy = model.get_accuracy_score(X_test, Y_test)
+    model.save_model("save_model")
+    model.save_train_val_curves("accuracy", "loss")
+    video_output = model.predict_video(video_file)
+    #print(f"data shape = {data.shape}")
+    #print(f"labels shape = {labels.shape}")
+    
+    #sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    #print("absolute path: ", os.path.dirname(os.path.abspath(__file__)))
+    #simp_path = __file__
+    #abs_path = os.path.abspath(simp_path)
+    #print(abs_path)
+    #from sklearn.model_selection import train_test_split
+    #X_train, X_test, Y_train, Y_test = train_test_split(data, labels, stratify = labels, test_size = 0.3, random_state = 5)
+    #new_model = model.create_model(Y_train, X_test, Y_train, Y_test)
