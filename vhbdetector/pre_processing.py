@@ -11,10 +11,27 @@ import numpy as np
 import pickle
 class Normalization():
     def __init__(self):
-        self.data = np.array([])
-    def pixels_normalization(self, videos_data, path_to_save):
-        videos_data = videos_data / 255
-        pickle.dump(videos_data, open(path_to_save, "wb"))
+        pass
+        
+    def pixels_normalization(self, videos_data, path_to_save = None):
+        """
+        Parameters:
+            videos_data: It gets input of videos data organized in numpy array.
+            path_to_same: It get the filename or fullpath(valid) of file where it should be saved.
+            Returns: According to the filename or fullpath(valid) given in the parameter path_to_save, it can save the normalized data as well as it will return the data.
+        """
+        if path_to_save:
+            if path_to_save == True or (len(path_to_save) < 6 or path_to_save[-7:] != ".pickle"):
+                pickle.dump(videos_data, open("X_new.pickle", "wb"))
+            else:
+                try:
+                    videos_data = videos_data / 255
+                    pickle.dump(videos_data, open(path_to_save, "wb"))
+                except:
+                    print("Error in either file name or file path!")
+        else:
+            videos_data = videos_data / 255
+        return videos_data
 
 
 
@@ -83,6 +100,12 @@ class Preprocessing():
 if __name__ == "__main__":
     dl = DataLoader()
     data, target = dl.load_data("datasets/X_short.pickle", "datasets/Y_short.pickle")
+    
+    norm = Normalization()
+    
+    data = norm.pixels_normalization(data, "True.pickle")
+    
     pp = Preprocessing()
+    
     data = data.reshape(data.shape[0], data.shape[1], data.shape[2], data.shape[3], 1)
     videos_data = pp.change_data_dimensions(data, 100, 30, 30)

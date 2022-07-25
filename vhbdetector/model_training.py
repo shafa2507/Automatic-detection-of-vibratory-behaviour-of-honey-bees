@@ -32,7 +32,9 @@ dl = DataLoader()
 data_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\wdd_ground_truth"
 labels_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\ground_truth_wdd_angles.pickle"
 
-data, labels = dl.load_data_from_scratch(30, 25, 25, data_file, labels_file)
+#data, labels = dl.load_data_from_scratch(30, 25, 25, data_file, labels_file)
+
+data, labels = dl.load_data("datasets/X_short.pickle", "datasets/Y_short.pickle")
 
 from vhbdetector.pre_processing import Normalization, Preprocessing
 
