@@ -48,13 +48,17 @@ data = pp.change_data_dimensions(data, 25, 15, 15)
 
 #from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM
 #from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM
-from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR
+#from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR
+from models.cnn.convolutions import CNN_TD
 
 #model = CONVLSTM(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
 
 #model = BASIC_CONVLSTM(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2)
 
-model = CONVLSTM_REGR(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
+#model = CONVLSTM_REGR(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
+
+model = CNN_TD(8, "tanh", 0.1)
+
 
 from sklearn.model_selection import train_test_split
 
