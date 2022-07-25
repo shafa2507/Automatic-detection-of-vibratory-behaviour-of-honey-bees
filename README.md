@@ -1,4 +1,4 @@
 # Automatic Detection of Vibratory Behavious of Honeybees.
 
 ### Getting Started
-Please run the setup before to use any file.
+Please run the setup.py before to use any file.
