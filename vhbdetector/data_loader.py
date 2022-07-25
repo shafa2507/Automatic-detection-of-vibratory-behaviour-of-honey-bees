@@ -21,8 +21,7 @@ from sklearn.preprocessing import LabelEncoder
 
 class DataLoader():
     def __init__(self, data_path = "datasets\wdd_ground_truth\\", 
-               ground_truth_file_path = "datasets\ground_truth_wdd_angles.pickle",
-               img_height = 60, image_width = 60):
+               ground_truth_file_path = "datasets\ground_truth_wdd_angles.pickle"):
         """
         Parameters:
             data_path: optional, it gets path of folder 'wdd_ground_truth' stored in the system to retrieve the data.
@@ -36,8 +35,8 @@ class DataLoader():
         self.data_path = data_path
         self.ground_truth_file_path = ground_truth_file_path
         self.max_frame_len = None
-        self.img_height = img_height
-        self.img_width = image_width
+        self.img_height = None
+        self.img_width = None
         self.slash = "/"
     
     def configure_data(self):
@@ -66,10 +65,10 @@ class DataLoader():
         # Validate the data folder and pickle paths to move forward to load the data
         if os.path.exists(self.data_path):
             pass
-        else: raise Exception(f"The \'{self.data_path}\' path is a wrong path to access data folder! Enter correct path again to load data successfully!")
+        else: raise Exception(f"The \'{self.data_path}\' path is a wrong path to access data folder! Enter correct path again to load videos data successfully!")
         if os.path.exists(self.ground_truth_file_path):
             pass
-        else: raise Exception(f"The \'{self.ground_truth_file_path}\' path is a wrong path to access data folder! Enter correct path again to load data successfully!")
+        else: raise Exception(f"The \'{self.ground_truth_file_path}\' path is a wrong path to access data folder! Enter correct path again to load pickle file that contains ground truth information!")
         
         # Load the ground truth file which contains arranged file paths of video data 
         pickle_file = open(self.ground_truth_file_path, "rb")
@@ -79,7 +78,7 @@ class DataLoader():
         # Data has been prepared to use 
         return data[0]
     
-    def find_max_frame_length(self, data, verbose = False):
+    def find_max_frame_length(self, data):
         from tqdm.auto import tqdm
         slash = self.slash
         max_frame_len = 0
@@ -106,13 +105,13 @@ class DataLoader():
         return max_frame_len
     
     
-    def extract_data(self, data):
+    def extract_data(self, data, max_frame_len, set_frame_len, img_height, img_width):
         
         from tqdm.auto import tqdm
         data_path = self.data_path
         slash = self.slash
-        img_height = self.img_height
-        img_width = self.img_width
+        self.img_height = img_height
+        self.img_width = img_width
         
         # Finding the maximum frames length from all videos
         #data = self.configure_data()
@@ -151,14 +150,30 @@ class DataLoader():
                 except:
                     print("Error in Retrieving Image data!")
                 
-                # Storing first video when video data list is empty
+                # Find the frame length difference bewteen maximum frame length video and current video
                 frame_len_diff = max_frame_len - len(video)
                 video_data_after_padding = np.append(np.array(video), np.zeros((frame_len_diff, img_height, img_width)), axis = 0)
+                
+                # Cut frames from start and end
+                # Slicing formula
+                subt_frame = (max_frame_len - set_frame_len) / 2
+                
+                # Storing first video when video data list is empty
                 if videos_data.size == 0:
                     videos_data = video_data_after_padding.reshape(1, max_frame_len, img_height, img_width).copy()
+                    
+                    # Here slicing or (frames cut) is done for first video
+                    videos_data = videos_data[0][int(subt_frame): max_frame_len - round(subt_frame + 0.1)].reshape(1, set_frame_len, img_height, img_width)
                     videos_label = np.append(videos_label, label)
                     continue
-                videos_data = np.append(videos_data, video_data_after_padding.reshape(1, max_frame_len, img_height, img_width), axis = 0)
+                
+                video_data_after_padding = video_data_after_padding.reshape(1, max_frame_len, img_height, img_width)
+                #print(f"Before slicing: {video_data_after_padding.shape}")
+                
+                # Here slicing or (frames cut) is done
+                video_data_after_padding = video_data_after_padding[0][int(subt_frame): max_frame_len - round(subt_frame + 0.1)].reshape(1, set_frame_len, img_height, img_width)
+                videos_data = np.append(videos_data, video_data_after_padding, axis = 0)
+                #print(f"After slicing and concatenating: {videos_data.shape}")
                 videos_label = np.append(videos_label, label)
                 video_data_after_padding = np.array([])
         except ValueError:
@@ -182,13 +197,7 @@ class DataLoader():
     
     def load_data(self, data_file = None, label_file = None):
         if data_file == None and label_file == None:
-            data = self.configure_data()
-            #Check whether the maximum frame length in all videos is already found or not
-            if self.max_frame_len == None:
-                self.max_frame_len = self.find_max_frame_length(data)
-                videos_data, labels_data = self.extract_data(data)
-                return videos_data, labels_data
-        
+            raise Exception("Videos data and labels data files are not found! Please enter them to continue or use load_data_from_scrath() function to load them if the organized data (stored in two pickle files) doesn't exists.")
         elif data_file == None or label_file == None:
             ext = ".pickle"
             if data_file == None or (not os.path.exists(data_file)) or len(data_file) < 7 or data_file[-7:] != ext:
@@ -197,6 +206,14 @@ class DataLoader():
                 raise Exception("Please enter filename (correctly) that contains labels of video and try again!")   
         
         else:
+            if not os.path.exists(data_file):
+                raise Exception(f"Video data containing (pickle) file {data_file} doesn't exist. Please use correct file address.")
+            if not os.path.exists(label_file):
+                raise Exception(f"Videos labels containing (pickle) file {label_file} doesn't exist. Please use correct file address.")
+                
+                
+                # If both input files are given and their paths are correct then run the following code
+                
             try:
                 #Load the data if file names are given as input
                 videos_data = pickle.load(open(data_file, "rb"))
@@ -212,13 +229,56 @@ class DataLoader():
         return videos_data, videos_label
     
     
+    def load_data_from_scratch(self, set_frame_len = 179, set_img_height = 60, set_img_width = 60, videos_folder_path = None, ground_truth_pickle_path = None):
+        
+        if set_frame_len > 179 or set_img_height > 220 or set_img_width > 220:
+            raise Exception("The maximum frames length on any video is 179, the maximum image height and image width is 220. You cannot exceeds this limit. Please enter the values under this criteria. While the minimum is 1, 1 and 1 respectively")
+            
+        
+        # Update the data files paths if given as input in this function
+        if videos_folder_path != None:
+            self.data_path = videos_folder_path
+        if ground_truth_pickle_path != None:
+            self.ground_truth_file_path = ground_truth_pickle_path()
+        
+        
+        self.data = self.configure_data()
+        
+        
+        if self.max_frame_len == None:
+            max_frame_len = self.find_max_frame_length(data)
+        else:
+            max_frame_len = self.max_frame_len
+        
+        videos_data, labels_data = self.extract_data(data, max_frame_len, set_frame_len, set_img_height, set_img_width)
+        return videos_data, labels_data
+        
+        
+        #if data_file == None and label_file == None:
+        #    data = self.configure_data()
+        #    #Check whether the maximum frame length in all videos is already found or not
+        #    if self.max_frame_len == None:
+        #        self.max_frame_len = self.find_max_frame_length(data)
+        #        videos_data, labels_data = self.extract_data(data)
+        #        return videos_data, labels_data
+        
+        
+        
+        #Save the data in Data Loader Class variables
+        self.data = videos_data
+        self.labels_encoded = videos_label
+        
+        #Return the data
+        return videos_data, videos_label
     
-    def save_data(self, videos_data = None , videos_label = None, data_file = "X.pickle", target_class_file = "Y.pickle"):
+    
+    
+    def save_data(self, videos_data = np.array([]) , videos_label = np.array([]), data_file = "X.pickle", target_class_file = "Y.pickle"):
         # If no data is provided in input, then check whether the data is stored previously in Data Loader class
         #If there is no data found in this class, then to insure the reliability, user will get feedback to load data again
         if not np.size(videos_data) or not np.size(videos_label):
             if not np.size(self.data) or not np.size(self.labels_encoded):
-                raise Exception("Please load data first before trying to execute save function!")
+                raise Exception("Please load data first before trying to save files!")
                 
         if not np.size(videos_data):
             videos_data = self.data
@@ -228,7 +288,6 @@ class DataLoader():
         # Label Encoding to get information about class distribution of videos label feature
         class_info_flag = False
         if np.size(self.labels):
-            class_info_flag = True
             le = LabelEncoder()
             class_name = pd.Series(videos_label).value_counts().index
             class_encode = le.fit_transform(pd.Series(videos_label).value_counts().index)
@@ -241,6 +300,7 @@ class DataLoader():
             class_info["class_dist"] = class_dist
             class_df = pd.DataFrame(class_info)
             class_df.to_csv("target_class_information.csv", index = False)
+            class_info_flag = True
         
         ext = ".pickle"
         
@@ -275,8 +335,17 @@ class DataLoader():
 
 
 if __name__ == "__main__":
+    #from swp_project.data_loader import DataLoader
+    print(__package__)
     dl = DataLoader()
     data = dl.configure_data()
+    print(__name__)
+    print(__file__)
+    import os, sys
+    print(os.path.dirname(__file__))
+    sys.path.append(os.path.dirname(__file__))
+    from models.cnn_rnn.conv_lstm import CONVLSTM
+    #from models.cnn_rnn.conv_lstm import CONVLSTM
     
     #norm = Normalization()
     #norm.pixels_normalization(videos_data, path_to_save)
@@ -285,6 +354,7 @@ if __name__ == "__main__":
     #print(max_frame_len)
 
     #data, labels = dl.load_data(None, None)
+    #data, labels = dl.load_data_from_scratch(5, 60, 60)
 
     #pickle.dump(data[:100], open("X.pickle", "wb"))
     #pickle.dump(labels[:100], open("Y.pickle", "wb"))

@@ -84,8 +84,7 @@ class CNN_TD(BaseModel):
             model.add(Conv2D(self.filters * 2, (3,3), padding='same', activation = self.conv_actvn))
             model.add(Conv2D(self.filters * 2, (3,3), padding='same', activation = self.conv_actvn))
             model.add(BatchNormalization(momentum=momentum))
-        
-        model.add(MaxPool2D())
+            model.add(MaxPool2D())
         
         model.add(Conv2D(self.filters * 4, (3,3), padding='same', activation=self.conv_actvn))
         model.add(Conv2D(self.filters * 4, (3,3), padding='same', activation=self.conv_actvn))
@@ -103,9 +102,9 @@ class CNN_TD(BaseModel):
         
         # then create our final model
         model = Sequential()
-        # add the convnet with (5, 60, 60, 1) shape
         model.add(TimeDistributed(convnet, input_shape=shape))
-        # and finally, we make a decision network
+        model.add(Flatten())
+        
         model.add(Dense(1024, activation='relu'))
         model.add(Dropout(self.drop_rate))
         model.add(Dense(512, activation='relu'))
@@ -331,6 +330,13 @@ if __name__ == "__main__":
     copy = model.create_model(X_train, Y_train, X_test, Y_test)
     
     history, trained_model = model.train_model()
+    
+    
+    model.get_accuracy_score(X_test, Y_test)
+    
+    video_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\sample_video.mp4"
+    
+    video_output = model.predict_video(video_file)
 
 
 
