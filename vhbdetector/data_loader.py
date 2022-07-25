@@ -239,10 +239,12 @@ class DataLoader():
         if videos_folder_path != None:
             self.data_path = videos_folder_path
         if ground_truth_pickle_path != None:
-            self.ground_truth_file_path = ground_truth_pickle_path()
+            self.ground_truth_file_path = ground_truth_pickle_path
         
         
-        self.data = self.configure_data()
+        data = self.configure_data()
+        
+        self.data = data
         
         
         if self.max_frame_len == None:
@@ -266,10 +268,10 @@ class DataLoader():
         
         #Save the data in Data Loader Class variables
         self.data = videos_data
-        self.labels_encoded = videos_label
+        self.labels_encoded = labels_data
         
         #Return the data
-        return videos_data, videos_label
+        return videos_data, labels_data
     
     
     

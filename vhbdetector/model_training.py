@@ -4,8 +4,8 @@ Created on Sun Jul 17 16:45:51 2022
 
 @author: Muhammad Kaleemullah
 """
-from data_loader import DataLoader
-from models.cnn_rnn import conv_lstm
+from vhbdetector.data_loader import DataLoader
+#from data_loader import DataLoader
 
 import pickle
 import numpy as np
@@ -29,51 +29,42 @@ class TrainManager():
 
 dl = DataLoader()
 
+data_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\wdd_ground_truth"
+labels_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\ground_truth_wdd_angles.pickle"
 
-X, Y = dl.load_data("datasets/X_normalized.pickle", "datasets/Y.pickle")
-X = X.reshape(X.shape[0], X.shape[1], X.shape[2], X.shape[3], 1)
-X.shape
-# Using Keras's to_categorical method to convert labels into one-hot-encoded vectors
-Y = to_categorical(Y)
+data, labels = dl.load_data_from_scratch(30, 25, 25, data_file, labels_file)
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.25, shuffle = True, random_state = 5)
+from vhbdetector.pre_processing import Normalization, Preprocessing
 
+norm = Normalization()
 
-#del X
-#del Y
+data = norm.pixels_normalization(data)
 
-# Model parameters
-#CLASSES_LIST = list(range(Y_train.shape[1]))
-#num_classes = len(CLASSES_LIST)
-num_classes = Y_train.shape[1]
-SEQUENCE_LENGTH = X_train.shape[1]
-IMAGE_HEIGHT = X_train.shape[2]
-IMAGE_WIDTH = X_train.shape[3]
-channels = X.shape[-1]
+pp = Preprocessing()
 
-# Define Hyperparameters
-BATCH_SIZE = 24
-EPOCHS = 250
-learning_rate = 0.0001
-callbacks_params = [
-             callbacks.EarlyStopping(monitor='val_loss', mode = "min", patience=150),
-             callbacks.ReduceLROnPlateau(patience = 15, verbose=1)]
-             #callbacks.ModelCheckpoint('../input/honeybees/weights.{epoch:02d}-{val_loss:.2f}.hdf5', verbose=1)]
+data = pp.change_data_dimensions(data, 25, 15, 15)
 
+#from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM
+#from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM
+from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR
 
-# Loding model
-model = conv_lstm(seq_len = SEQUENCE_LENGTH, img_height = img_height, img_width = IMAGE_WIDTH, channels = channel)
-print(model)
+#model = CONVLSTM(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
 
-# Plot the structure of the contructed model and save it to corresponding file.
-plot_model(model, to_file = 'models/cnn_rnn/conv_lstm/convlstm_model_structure_plot.png', show_shapes = True, show_layer_names = True)
+#model = BASIC_CONVLSTM(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2)
 
-# Compile the model and specify loss function, optimizer and metrics values to the model
-convlstm_model.compile(loss = 'categorical_crossentropy', optimizer = Adam(learning_rate = learning_rate), metrics = ["accuracy"])
+model = CONVLSTM_REGR(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
 
+from sklearn.model_selection import train_test_split
 
+X_train, X_test, Y_train, Y_test = train_test_split(data, labels, test_size = 0.3, stratify = labels, shuffle = True, random_state = 5)
 
-# Start training the model.
-history = model.fit(x = X_train, y = Y_train, epochs = EPOCHS, batch_size = BATCH_SIZE,
-                             shuffle = True, validation_data = (X_test, Y_test),
-                             callbacks = callbacks_params)
+model.create_model(X_train, Y_train, X_test, Y_test)
+
+model.set_hyperparams(0.01, 8, 1)
+
+history, trained_model = model.train_model()
+
+accuracy = model.get_accuracy_score(X_test, Y_test)
+
+video_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\sample_video.mp4"
+video_pred = model.predict_video(video_file)
