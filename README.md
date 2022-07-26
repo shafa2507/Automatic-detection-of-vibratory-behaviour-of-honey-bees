@@ -7,18 +7,20 @@ Please download our toolkit ```vhbdetector``` from <a href = "https://github.com
 Following packages are required to be installed on system before using this toolkit(or package).
 <ul>
     <li>
-        TensorFlow (use ```pip install tensorflow``` to install this package)
+        TensorFlow
     </li>
     <li>
-        Pickle (use ```pip install pickle``` to install this package)
+        Pickle
     </li>
     <li>
-        CV2 (use ```pip install cv2``` to install this package)
+        CV2
     </li>
     <li>
-        Sci-Kit Learn (use ```pip install sklearn``` to install this package)
+        Sci-Kit Learn (sklearn)
     </li>
 </ul>
+
+Use ``` pip install package_name ``` to install the above packages.
 
 ### Getting Started
 Please run the ```setup.py``` before to use any file.
