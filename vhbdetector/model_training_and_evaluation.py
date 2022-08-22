@@ -29,9 +29,16 @@ labels_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Autom
 
 #data, labels = dl.load_data_from_scratch(30, 25, 25, data_file, labels_file)
 
-data, labels = dl.load_data("datasets/X_short.pickle", "datasets/Y_short.pickle")
+x_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Test\Automatic-detection-of-vibratory-behaviour-of-honey-bees-main\vhbdetector\datasets/X_short.pickle"
+y_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Test\Automatic-detection-of-vibratory-behaviour-of-honey-bees-main\vhbdetector\datasets/Y_short.pickle"
+data, labels = dl.load_data(x_file, y_file)
 
-from vhbdetector.pre_processing import Normalization, Preprocessing
+
+
+
+
+
+from vhbdetector.pre_processing import Normalization, Preprocessing, Augmentation
 
 norm = Normalization()
 
@@ -40,6 +47,12 @@ data = norm.pixels_normalization(data)
 pp = Preprocessing()
 
 data = pp.change_data_dimensions(data, 25, 15, 15)
+
+# Data Augmentation to balance the dataset
+
+aug = Augmentation()
+
+new_data, new_labels = aug.balance_data(data, labels)
 
 #from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM
 #from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM

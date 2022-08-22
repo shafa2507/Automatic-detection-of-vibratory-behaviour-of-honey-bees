@@ -6,9 +6,107 @@ Created on Sun Jul 17 00:53:45 2022
 """
 
 from vhbdetector.data_loader import DataLoader
+import tensorflow as tf
 
 import numpy as np
 import pickle
+
+
+class Augmentation():
+    def __init(self):
+        pass
+    
+    def balance_data(self, data, labels):
+        try:
+            assert data.shape[0] == labels.shape[0]
+            
+            if len(data.shape) > 3:
+                frame_len = data.shape[1]
+                img_height = data.shape[2]
+                img_width = data.shape[3]
+                pass
+            else:
+                raise Exception("The video data is either corrputed or not loaded completely, it does not contain complete information!")
+        except:
+            print("Data and labels are not equal in length! Please try again with appropriate shape!")
+        
+        unique_labels = set(labels)
+        labels_count = {}
+        for i in unique_labels:
+            labels_count[i] = np.count_nonzero(labels == i)
+        
+        
+        import operator
+        labels_count_ordered = dict(sorted(labels_count.items(), key=operator.itemgetter(1),reverse=True))
+        
+        
+        add_labels_count = {}
+        
+        count = 0
+        for key in labels_count.keys():
+            if count > 0:
+                add_labels_count[key] = labels_count_ordered[0] - labels_count_ordered[key]
+            count += 1
+        
+        augmented_frame = 0
+        videos_data = np.array([])
+        new_labels = np.array([])
+        
+        
+        for class_ in range(len(add_labels_count.keys())):
+            count = 0
+            
+            for idx in range(len(labels)):
+                video = []
+                is_video_augmented = False
+                
+                if (labels[idx] == (class_ + 1)) and (count < add_labels_count[class_ + 1]):
+                    for frame in range(data[idx].shape[0]):
+                        #print("------------\n\n\n Index = ", idx)
+                        #print("Shape of data[idx]", data[idx].shape)
+                        #print("Frame number = ", frame)
+                        
+                        #print("\n Data Shape = ", data[idx][frame].reshape(img_height, img_width, 1).shape)
+                        augmented_frame = tf.image.rot90(data[idx][frame].reshape(img_height, img_width, 1), k = 2)
+                        augmented_frame = augmented_frame.numpy()
+                        #print("Augmented frame shape = ", augmented_frame.shape)
+                        
+                        #print("Augmented frame shape after reshaping it = ", augmented_frame.reshape(img_height, img_width).shape)
+                        
+                        video.append(augmented_frame)
+                        #print("Video shape = ", np.array(video).shape)
+                        is_video_augmented = True
+                        
+                    #print("Label's value = ", labels[idx])
+                    count += 1
+                if is_video_augmented:
+                    new_labels = np.append(new_labels, labels[idx])
+                    if videos_data.size == 0:
+                        
+                        videos_data = np.array(video).reshape(1, data.shape[1], img_height, img_width)
+                        continue
+                        
+                    videos_data = np.append(videos_data, np.array(video).reshape(1, data.shape[1], img_height, img_width), axis  = 0)
+                    #print("Videos shape = ", videos_data.shape)
+                   
+            #print("Total Instances added = ", count)
+            #print("Total Instances required = ", add_labels_count[class_ + 1])
+        
+        print("data.shape = ", data.shape)
+        print("videos_data.shape = ", videos_data.shape)
+        data = np.append(data, videos_data, axis = 0)
+        labels = np.append(labels, new_labels, axis = 0)
+        
+        print("-------------After update-------------------")
+        print("data.shape = ", data.shape)
+        print("labels.shape = ", labels.shape)
+        
+        return (data, labels)
+        
+            
+        
+        pass
+
 class Normalization():
     def __init__(self):
         pass
