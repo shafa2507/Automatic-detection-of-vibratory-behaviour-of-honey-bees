@@ -2,7 +2,7 @@
 
 
 ### Installation
-Please download our toolkit ```vhbdetector``` from <a href = "https://github.com/shafa2507/Automatic-detection-of-vibratory-behaviour-of-honey-bees/releases/tag/stable_version">here</a>.
+Please download our toolkit ```vhbdetector``` from <a href = "https://github.com/shafa2507/Automatic-detection-of-vibratory-behaviour-of-honey-bees/releases/tag/Latest_Version">here</a>.
 
 Following packages are required to be installed on system before using this toolkit(or package).
 <ul>
