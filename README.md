@@ -24,5 +24,4 @@ Use ``` pip install package_name ``` to install the above packages.
 
 ### Getting Started
 Please run the ```setup.py``` before to use any file.
-
 Please  see the ```model_training_and_evaluation.py``` file to get help understand the modules and functionality of this library or tool.
