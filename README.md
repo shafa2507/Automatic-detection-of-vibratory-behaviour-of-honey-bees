@@ -20,7 +20,7 @@ Following packages are required to be installed on system before using this tool
     </li>
 </ul>
 
-Use ``` pip install package_name ``` to install the above packages.
+Use ``` pip install package_name ``` to install the above packages. <br>
 Please  see the ```model_training_and_evaluation.py``` file to get help understand the modules and functionality of this library or tool.
 
 ### Getting Started
