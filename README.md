@@ -1,6 +1,5 @@
 # Automatic Detection of Vibratory Behavious of Honeybees.
 
-
 ### Installation
 Please download our toolkit ```vhbdetector``` from <a href = "https://github.com/shafa2507/Automatic-detection-of-vibratory-behaviour-of-honey-bees/releases/tag/Latest_Version">here</a>.
 
@@ -30,11 +29,11 @@ Please  see the ```model_training_and_evaluation.py``` file to get help understa
 ### Data Loading
 Please use the following snippets for data loading
 
-
 Use this to load the class and initialize the object of the class
 
-```from vhbdetector.data_loader import DataLoader
-dl = DataLoader()```
+```from vhbdetector.data_loader import DataLoader```
+
+```dl = DataLoader()```
 
 ##### For data loading from zipped folders of images(scratch):
 
@@ -51,12 +50,14 @@ Here, ```data_file``` refers to the file that contains all the data of videos st
 ##### Save the data (videos) extracted from zipped images to Pickle files:
 
 ```dl.save_data(videos_data = np.array([]) , videos_label = np.array([]), data_file = "X.pickle", target_class_file = "Y.pickle")```
-```videos_data``` means the array whose data will be stored and likewise ```videos_label``` that contains labels data in NumPy file to store in ```target_class_file```.
+
+`videos_data` means the array whose data will be stored and likewise `videos_label` that contains labels data in NumPy file to store in `target_class_file`.
 
 ### Data Pre-processing
 Load the necessary <b>modules</b>.
 
 ```from vhbdetector.pre_processing import Preprocessing```
+
 ```pp = Preprocessing()```
 
 ##### change the dimensions of the data or edit the data
@@ -68,6 +69,7 @@ The number of frames, imamge height and image width can be modified using this u
 Load the necessary <b>modules</b>.
 
 ```from vhbdetector.pre_processing import Normalization```
+
 ```norm = Normalization()```
 
 ##### Pixels Normalization
@@ -79,7 +81,9 @@ It normalizes the data of every frame (image) with pixel normalization method (i
 Load the necessary <b>modules</b>.
 
 ```from vhbdetector.pre_processing import Augmentation```
+
 ```aug = Augmentation()```
 
 ### Balance the dataset using data augmentation by generating roated (transformed) videos of lower classes whose distribution is small to balance the dataset. 
+
 ```new_data, new_labels = aug.balance_data(data, labels)```
