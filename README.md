@@ -77,7 +77,7 @@ It normalizes the data of every frame (image) with pixel normalization method (i
 
 ```data = norm.pixels_normalization(data)```
 
-### Data Augmentation (Balance the data set)
+### Data Augmentation
 Load the necessary <b>modules</b>.
 
 ```from vhbdetector.pre_processing import Augmentation```
