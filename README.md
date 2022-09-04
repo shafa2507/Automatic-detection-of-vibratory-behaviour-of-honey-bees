@@ -33,8 +33,8 @@ Please use the following snippets for data loading
 
 Use this to load the class and initialize the object of the class
 
-```from vhbdetector.data_loader import DataLoader```
-```dl = DataLoader()```
+```from vhbdetector.data_loader import DataLoader
+dl = DataLoader()```
 
 ##### For data loading from zipped folders of images(scratch):
 
