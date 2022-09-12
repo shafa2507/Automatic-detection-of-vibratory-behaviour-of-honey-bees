@@ -84,6 +84,19 @@ Load the necessary <b>modules</b>.
 
 ```aug = Augmentation()```
 
-### Balance the dataset using data augmentation by generating roated (transformed) videos of lower classes whose distribution is small to balance the dataset. 
+##### Balance the dataset using data augmentation by generating roated (transformed) videos of lower classes whose distribution is small to balance the dataset. 
 
 ```new_data, new_labels = aug.balance_data(data, labels)```
+
+
+###How to train a model using this <b>tool/package</b>?
+Load the specific <b>model</b>.
+
+```python
+from models.cnn.convolutions import CNN_TD                                    # to use Convolution 3D model``
+```from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM                     # to use standard CNN-RNN model with diverse hyperparameters``
+```from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM                     # to use Basic CNN-RNN model that runs faster with mininal range of hyperparameters``
+```from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR        # to use CNN-RNN deep network with regularization effect features and additional hyperparameters```
+
+
+```aug = Augmentation()```
