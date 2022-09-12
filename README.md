@@ -111,10 +111,10 @@ new_data, new_labels = aug.balance_data(data, labels)
 Load the specific <b>model</b>.
 
 ```python
-from models.cnn.convolutions import CNN_TD                                    # to use Convolution 3D model``
-```from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM                     # to use standard CNN-RNN model with diverse hyperparameters``
-```from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM                     # to use Basic CNN-RNN model that runs faster with mininal range of hyperparameters``
-```from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR        # to use CNN-RNN deep network with regularization effect features and additional hyperparameters
+from models.cnn.convolutions import CNN_TD                                    # to use Convolution 3D model
+from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM                     # to use standard CNN-RNN model with diverse hyperparameters
+from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM                     # to use Basic CNN-RNN model that runs faster with mininal range of hyperparameters
+from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR        # to use CNN-RNN deep network with regularization effect features and additional hyperparameters
 ```
 
 
