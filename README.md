@@ -19,7 +19,9 @@ Following packages are required to be installed on system before using this tool
     </li>
 </ul>
 
-Use ``` pip install package_name ``` to install the above packages.
+Use ```python
+pip install package_name
+``` to install the above packages.
 
 ### Getting Started
 Please run the ```setup.py``` before to use any file.
