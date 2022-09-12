@@ -107,7 +107,7 @@ aug = Augmentation()
 new_data, new_labels = aug.balance_data(data, labels)
 ```
 
-###How to train a model using this <b>tool/package</b>?
+### How to train a model using this <b>tool/package</b>?
 Load the specific <b>model</b>.
 
 ```python
@@ -116,6 +116,54 @@ from vhbdetector.models.cnn_rnn.conv_lstm import CONVLSTM                     # 
 from models.cnn_rnn.conv_lstm_basic import BASIC_CONVLSTM                     # to use Basic CNN-RNN model that runs faster with mininal range of hyperparameters
 from models.cnn_rnn.convlstm_regularization_norms import CONVLSTM_REGR        # to use CNN-RNN deep network with regularization effect features and additional hyperparameters
 ```
+<b>Note:</b> There is a greater flexibility ensured in choosing hyperparameters from the following allowed parameters. Please choose the hyperparameters from the corresponding models accordingly.
 
+#### For Convolutions 3D model, following is the way to initialize the model
+```python
+model = CNN_TD(filters = 8, convolutions_activation = "tanh", drop_rate = 0.1)
+```
+#### For CNN-RNN model, following is the way to initialize the model
+```python
+model = CONVLSTM(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
+```
+#### For CNN-RNN Basic model, following is the way to initialize the model
+```python
+model = BASIC_CONVLSTM(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2)
+```
+#### For CNN-RNN regularized model, following is the way to initialize the model
+```python
+model = CONVLSTM_REGR(convolutions_activation = "tanh", recurrent_activation = "hard_sigmoid", time_distributed_drop_rate = 0.2, convolutions_drop_rate = 0.1, recurrent_drop_rate = 0.1)
+```
 
-```aug = Augmentation()```
+<b>Alternatively</b>, Hyperparameters can be chosen using ```.set_hyperparams()``` function.
+
+### Create Model
+The following code provides the usage guide to create model.
+```python
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, Y_train, Y_test = train_test_split(data, labels, test_size = 0.3, stratify = labels, shuffle = True, random_state = 5)
+
+model.create_model(X_train, Y_train, X_test, Y_test)
+```
+
+### Training a model
+```python
+history, trained_model = model.train_model()
+```
+
+### Measuring Accuracy
+
+```python
+accuracy = model.get_accuracy_score(X_test, Y_test)
+```
+
+### Making predictions
+
+```python
+video_file = r"C:\Users\Muhammad Kaleemullah\.spyder-py3\Software Project\Automatic Detection of Vibratory Honeybees\vhbdetector\datasets\sample_video.mp4"
+video_pred = model.predict_video(video_file)
+```
+
+<b>Note:</b> Please let us know if you found any issue in this tool.
+Thanks for using it!
