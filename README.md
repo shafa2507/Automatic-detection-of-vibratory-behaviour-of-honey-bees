@@ -19,10 +19,7 @@ Following packages are required to be installed on system before using this tool
     </li>
 </ul>
 
-Use 
-```python
-pip install package_name```
-to install the above packages.
+Use ```pip install package_name``` to install the above packages.
 
 ### Getting Started
 Please run the ```setup.py``` before to use any file.
@@ -34,9 +31,10 @@ Please use the following snippets for data loading
 
 Use this to load the class and initialize the object of the class
 
-```from vhbdetector.data_loader import DataLoader```
+```python
+from vhbdetector.data_loader import DataLoader
 
-```dl = DataLoader()```
+dl = DataLoader()```
 
 ##### For data loading from zipped folders of images(scratch):
 
